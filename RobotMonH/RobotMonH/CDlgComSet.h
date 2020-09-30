@@ -2,22 +2,7 @@
 
 
 // CDlgComSet 对话框
-struct Com_Port_Struct
-{
-	CString m_strPort;//实际串口号的cstring
-	int		m_iNum;//实际的串口号值
-	int		m_Index;//在下拉菜单的位置
-};
-
-
-struct Com_Info_Struct
-{
-	int		m_iPortNum;
-	int		m_iBand;
-	int		m_iDataBit;
-	int		m_iCheckBit;//0 代表 None  1代表Even 2代表ODD
-	int		m_iStopBit;
-};
+#include "RobotMonHDlg.h"
 
 class CDlgComSet : public CDialogEx
 {

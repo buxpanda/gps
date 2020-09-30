@@ -60,141 +60,115 @@ BOOL CDlgComSet::OnInitDialog()
 	{
 		m_ComboBox_PortSet.AddString(L"COM1");
 	}
-	//读取配置文件，设置上次设置的串口信息
-	CFileFind finder;   //查找是否存在ini文件，若不存在，则生成一个新的默认设置的ini文件，这样就保证了我们更改后的设置每次都可用
-	CString iniPath = _T("./RobotmonHConfig.ini");
-	BOOL ifFind = finder.FindFile(iniPath);
-
 	
-	//有找到文件就读取ini文件的内容
-	if (ifFind)
-	{	
-		m_Com_Info_Struct.m_iPortNum = GetPrivateProfileInt(_T("Database"), _T("ComPort"), 1, iniPath);//读出串口号
-		m_Com_Info_Struct.m_iBand = GetPrivateProfileInt(_T("Database"), _T("Band"), 119200, iniPath);//读出波特率
-		m_Com_Info_Struct.m_iCheckBit = GetPrivateProfileInt(_T("Database"), _T("CheckBit"), 0, iniPath);//读出校验位
-		m_Com_Info_Struct.m_iStopBit = GetPrivateProfileInt(_T("Database"), _T("StopBit"), 1, iniPath);//读出停止位
-		m_Com_Info_Struct.m_iDataBit = GetPrivateProfileInt(_T("Database"), _T("DataBit"), 8, iniPath);//读出数据位
-		//如果ini文件的串口号的值 不在 注册表的值里面。那就设置为注册表的第一个值。防止ini被修改造成数据不对
-		int findresult = 0;
-		for (int i =0;i<m_Struct_Com.GetCount();i++)
+	
+		
+	//如果ini文件的串口号的值 不在 注册表的值里面。那就设置为注册表的第一个值。防止ini被修改造成数据不对
+	int findresult = 0;
+	for (int i =0;i<m_Struct_Com.GetCount();i++)
+	{
+		if (m_Com_Info_Struct.m_iPortNum == m_Struct_Com[i].m_iNum)
 		{
-			if (m_Com_Info_Struct.m_iPortNum == m_Struct_Com[i].m_iNum)
-			{
-				findresult = 1;
-				//设置当前的串口值
-				m_ComboBox_PortSet.SetCurSel(i);
-				break;
-			}
-		}
-		//表示没找到
-		if (findresult == 0)
-		{
-			if (m_Struct_Com.GetCount()>0)
-			{
-				m_Com_Info_Struct.m_iPortNum = m_Struct_Com[0].m_iNum;
-			}
-			else
-			{
-				m_Com_Info_Struct.m_iPortNum = 1;
-			}	
-			m_ComboBox_PortSet.SetCurSel(0);
-		}
-		//同理查找波特率等如果被修改就设置成默认值
-		switch (m_Com_Info_Struct.m_iBand)
-		{
-		case 4800:
-			m_ComboBox_Band_Ctrl.SetCurSel(0);
-			break;
-		case 9600:
-			m_ComboBox_Band_Ctrl.SetCurSel(1);
-			break;
-		case 19200:
-			m_ComboBox_Band_Ctrl.SetCurSel(2);
-			break;
-		case 38400:
-			m_ComboBox_Band_Ctrl.SetCurSel(3);
-			break;
-		case 57600:
-			m_ComboBox_Band_Ctrl.SetCurSel(4);
-			break;
-		case 115200:
-			m_ComboBox_Band_Ctrl.SetCurSel(5);
-			break;
-		default:
-			//找不到就默认115200
-			m_Com_Info_Struct.m_iBand = 115200;
-			m_ComboBox_Band_Ctrl.SetCurSel(5);
-			break;
-		}
-		//校验位
-		switch (m_Com_Info_Struct.m_iCheckBit)
-		{
-		case 0:
-			m_ComboBox_Check_Ctrl.SetCurSel(0);
-			break;
-		case 1:
-			m_ComboBox_Check_Ctrl.SetCurSel(1);
-			break;
-		case 2:
-			m_ComboBox_Check_Ctrl.SetCurSel(2);
-			break;
-		default:
-			//找不到就默认无校验
-			m_Com_Info_Struct.m_iCheckBit = 0;
-			m_ComboBox_Check_Ctrl.SetCurSel(0);
-			break;
-		}
-		//数据位
-		switch (m_Com_Info_Struct.m_iDataBit)
-		{
-		case 6:
-			m_ComboBox_Data_Ctrl.SetCurSel(0);
-			break;
-		case 7:
-			m_ComboBox_Data_Ctrl.SetCurSel(1);
-			break;
-		case 8:
-			m_ComboBox_Data_Ctrl.SetCurSel(2);
-			break;
-		default:
-			//找不到就默认8
-			m_Com_Info_Struct.m_iDataBit = 8;
-			m_ComboBox_Data_Ctrl.SetCurSel(2);
-			break;
-		}
-		//停止位
-		switch (m_Com_Info_Struct.m_iStopBit)
-		{
-		case 0:
-			m_ComboBox_Stop_Ctrl.SetCurSel(0);
-			break;
-		case 1:
-			m_ComboBox_Stop_Ctrl.SetCurSel(1);
-			break;		
-		default:
-			//找不到就默认8
-			m_Com_Info_Struct.m_iStopBit = 1;
-			m_ComboBox_Stop_Ctrl.SetCurSel(1);
+			findresult = 1;
+			//设置当前的串口值
+			m_ComboBox_PortSet.SetCurSel(i);
 			break;
 		}
 	}
-	//没找到就采用默认值注册表中的第一个元素
-	else
-	{		
-		if (m_Struct_Com.GetCount() > 0)
+	//表示没找到
+	if (findresult == 0)
+	{
+		if (m_Struct_Com.GetCount()>0)
 		{
 			m_Com_Info_Struct.m_iPortNum = m_Struct_Com[0].m_iNum;
 		}
 		else
 		{
 			m_Com_Info_Struct.m_iPortNum = 1;
-		}
+		}	
 		m_ComboBox_PortSet.SetCurSel(0);
-		m_ComboBox_Band_Ctrl.SetCurSel(5);
-		m_ComboBox_Check_Ctrl.SetCurSel(0);
-		m_ComboBox_Data_Ctrl.SetCurSel(2);
-		m_ComboBox_Stop_Ctrl.SetCurSel(1);
 	}
+	//同理查找波特率等如果被修改就设置成默认值
+	switch (m_Com_Info_Struct.m_iBand)
+	{
+	case 4800:
+		m_ComboBox_Band_Ctrl.SetCurSel(0);
+		break;
+	case 9600:
+		m_ComboBox_Band_Ctrl.SetCurSel(1);
+		break;
+	case 19200:
+		m_ComboBox_Band_Ctrl.SetCurSel(2);
+		break;
+	case 38400:
+		m_ComboBox_Band_Ctrl.SetCurSel(3);
+		break;
+	case 57600:
+		m_ComboBox_Band_Ctrl.SetCurSel(4);
+		break;
+	case 115200:
+		m_ComboBox_Band_Ctrl.SetCurSel(5);
+		break;
+	default:
+		//找不到就默认115200
+		m_Com_Info_Struct.m_iBand = 115200;
+		m_ComboBox_Band_Ctrl.SetCurSel(5);
+		break;
+	}
+	//校验位
+	switch (m_Com_Info_Struct.m_iCheckBit)
+	{
+	case 0:
+		m_ComboBox_Check_Ctrl.SetCurSel(0);
+		break;
+	case 1:
+		m_ComboBox_Check_Ctrl.SetCurSel(1);
+		break;
+	case 2:
+		m_ComboBox_Check_Ctrl.SetCurSel(2);
+		break;
+	default:
+		//找不到就默认无校验
+		m_Com_Info_Struct.m_iCheckBit = 0;
+		m_ComboBox_Check_Ctrl.SetCurSel(0);
+		break;
+	}
+	//数据位
+	switch (m_Com_Info_Struct.m_iDataBit)
+	{
+	case 6:
+		m_ComboBox_Data_Ctrl.SetCurSel(0);
+		break;
+	case 7:
+		m_ComboBox_Data_Ctrl.SetCurSel(1);
+		break;
+	case 8:
+		m_ComboBox_Data_Ctrl.SetCurSel(2);
+		break;
+	default:
+		//找不到就默认8
+		m_Com_Info_Struct.m_iDataBit = 8;
+		m_ComboBox_Data_Ctrl.SetCurSel(2);
+		break;
+	}
+	//停止位
+	switch (m_Com_Info_Struct.m_iStopBit)
+	{
+	case 0:
+		m_ComboBox_Stop_Ctrl.SetCurSel(0);
+		break;
+	case 1:
+		m_ComboBox_Stop_Ctrl.SetCurSel(1);
+		break;		
+	default:
+		//找不到就默认8
+		m_Com_Info_Struct.m_iStopBit = 1;
+		m_ComboBox_Stop_Ctrl.SetCurSel(1);
+		break;
+	}
+	
+	
+	
 	return 0;
 }
 
